@@ -23,11 +23,11 @@ class PSO(OptimizerBase):
         self.evaluator = evaluator
 
         data = MjData(self.model)
-        data.qpos[:] = self.model.key_qpos[0].copy()
+        data.qpos[:] = self.model.qpos0.copy()
         data.qvel[:] = 0
         data.qacc[:] = 0
         mj_forward(self.model, data)
-        self.com_init_height = float(np.array(data.subtree_com[0])[2])
+        self.com_init_height = float(np.array(data.subtree_com[1])[2])
 
         self.sim_steps = sim_steps
 
@@ -136,7 +136,7 @@ class PSO(OptimizerBase):
                 self.model_path,
                 self.muscles,
                 self.sim_steps,
-                self.model.key_qpos[0],
+                self.model.qpos0,
                 self.com_init_height,
                 symmetry,
             ),

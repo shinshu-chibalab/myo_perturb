@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import skvideo.io
+import imageio.v2 as imageio
 from render.plot_muscle_length import plot_muscle_length
 import mujoco
 from mujoco import MjModel, MjData, mj_step, mj_forward
@@ -30,12 +30,10 @@ def render_video(model_path, x, muscles, controller, sim_steps, model_name, dela
 
 
     # 初期化
-    data.qpos[:] = model.key_qpos[0].copy()
+    data.qpos[:] = model.qpos0.copy()
     data.qvel[:] = 0
     data.qacc[:] = 0
-    data.qpos[pelvis_tilt_id] -= 0.02
-    data.qpos[ankle_angle_r_id] -= 0.01
-    data.qpos[ankle_angle_l_id] -= 0.01
+
     mj_forward(model, data)
 
     dt = model.opt.timestep
@@ -93,7 +91,7 @@ def render_video(model_path, x, muscles, controller, sim_steps, model_name, dela
         # COM 計算
         com = data.subtree_com[0].copy()
 
-        # ★ geom の位置を更新（最重要）
+        # geom の位置を更新
         model.geom_pos[com_geom_id] = com
 
         # 接触している geom の確認
@@ -111,7 +109,7 @@ def render_video(model_path, x, muscles, controller, sim_steps, model_name, dela
 
             pos = con.pos.copy()
 
-            # 接触力を取り出す（最重要）
+            # 床反力
             force = np.zeros(6)
             mujoco.mj_contactForce(model, data, i, force)
 
@@ -161,7 +159,10 @@ def render_video(model_path, x, muscles, controller, sim_steps, model_name, dela
     os.makedirs(video_dir, exist_ok=True)
     video_path = os.path.join(video_dir, f"{model_name}_{opt_name}_{camera}.mp4")
 
-    skvideo.io.vwrite(video_path, np.asarray(frames), inputdict={"-r": "200"}, outputdict={"-pix_fmt": "yuv420p"})
+    with imageio.get_writer(video_path, fps=500, codec="libx264", pixelformat="yuv420p") as writer:
+        for frame in frames:
+            writer.append_data(frame)
+
     print(f"[render_video] wrote {video_path} ({len(frames)} frames)")
 
     # ===== グラフ描画 ====

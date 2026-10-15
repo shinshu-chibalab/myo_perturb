@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import comocma
+import myo_sim
 from functools import partial
 from multiprocessing import Pool
 
@@ -23,9 +24,9 @@ class _IndividualLike:
 
 
 class COMO_CMA_ES(OptimizerBase):
-    def __init__(self, model_path, muscles, controller, evaluator, sim_steps, model_name):
+    def __init__(self, model, muscles, controller, evaluator, sim_steps, model_name):
         self.model_path = model_path
-        self.model = MjModel.from_xml_path(model_path)
+        self.model, self.data = myo_sim.load_model(model)
 
         self.muscles = muscles
         self.actuator_ids = [self.model.actuator(m).id for m in muscles]
@@ -33,12 +34,12 @@ class COMO_CMA_ES(OptimizerBase):
         self.evaluator = evaluator
 
         data = MjData(self.model)
-        data.qpos[:] = self.model.key_qpos[0].copy()
+        data.qpos[:] = self.model.qpos0.copy()
         data.qvel[:] = 0
         data.qacc[:] = 0
         mj_forward(self.model, data)
 
-        self.com_init_height = float(np.array(data.subtree_com[0])[2])
+        self.com_init_height = float(np.array(data.subtree_com[1])[2])
         self.sim_steps = sim_steps
         self.model_name = model_name
 
@@ -168,7 +169,7 @@ class COMO_CMA_ES(OptimizerBase):
                 self.model_path,
                 self.muscles,
                 self.sim_steps,
-                self.model.key_qpos[0],
+                self.model.qpos0,
                 self.com_init_height,
                 symmetry,
             ),

@@ -7,7 +7,7 @@ def standing_evaluator(logs):
     com_log = logs["com_log"]
     fall_cost = logs["fall_cost"]
 
-    f1 = (total_Edot / sim_steps) + fall_cost
-    f2 = 6e2 * com_95ellipse_area_xz(com_log) + fall_cost
+    f1 = 0.1 * (total_Edot / sim_steps) + fall_cost
+    f2 = com_cost(com_log) + fall_cost
 
     return np.array([f1, f2], dtype=float)

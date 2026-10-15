@@ -4,11 +4,11 @@ import mujoco.viewer
 # model = mujoco.MjModel.from_xml_path("myo_sim/gait10dof18musc/gait10dof18musc_cvt5.xml")
 # model = mujoco.MjModel.from_xml_path("myo_sim/gait2354/gait2354_simbody_cvt3.xml")
 # model = mujoco.MjModel.from_xml_path("myo_sim/torso/myotorso_abdomen.xml")
-model = mujoco.MjModel.from_xml_path("myo_sim/gait10dof24musc/gait10dof24musc_cvt1.xml")
+model = mujoco.MjModel.from_xml_path("myo_sim\models\leg\myolegs26.xml")
 data = mujoco.MjData(model)
 
 # キーフレーム初期化
-data.qpos[:] = model.key_qpos[0]
+data.qpos[:] = model.qpos0
 data.qvel[:] = 0
 data.qacc[:] = 0
 

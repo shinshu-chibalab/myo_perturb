@@ -2,29 +2,23 @@ import numpy as np
 from optim.como_cma_es import COMO_CMA_ES
 from render.render import render_video
 from controller.Standing_Controller import standing_controller
-# from controller.Standing_Scone_Controller import standing_controller
 from evaluator.f1Energy_f2Com_evaluator import standing_evaluator
-# from x0_gait10dof18musc import *
-from x0_gait10dof24musc import *
-# from x0_gait2354 import *
+from x0_myolegs26 import *
 
 from cos_sim import analyze_vectors
 
 
 if __name__ == "__main__":
 
-    # model_path = "myo_sim/gait10dof18musc/gait10dof18musc_cvt6.xml"
-    model_path = "myo_sim/gait10dof24musc/gait10dof24musc_cvt2.xml"
-    # model_name = "gait10dof18musc_standing_v2(como_cma_es)"
-    model_name = "gait10dof24musc_standing_v8(como_cma_es)"
-    # muscles = muscles18_v1
-    muscles = muscles24_v2
+    model_path = "myo_sim\models\leg\myolegs26.xml"
+    model_name = "myolegs26_standing_v1(como_cma_es)"
+    muscles = myolegs26_v0
 
     sim_steps = 1000
     sigma0 = 0.01
     popsize = 896
     maxiter = 3000
-    delay_time = 0.2
+    delay_time = 0.0
     noise_std = 0.0
     n_jobs = 56
     symmetry = True
@@ -70,7 +64,7 @@ if __name__ == "__main__":
         f"symmetry:   {symmetry}\n"
     )
 
-    cameras = ["front", "diagonal", "side", "oblique"]
+    cameras = ["front_view", "side_view"]
 
     ff_list = []
     Kp_list = []
