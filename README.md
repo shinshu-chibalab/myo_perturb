@@ -61,7 +61,7 @@ cd myo
 Create a Conda environment using the provided `environment.yml`.
 
 ```bash
-conda env create -f environment.yml -n <env-name>
+conda env create -f environment.yaml -n <env-name>
 ```
 
 You may choose any environment name.
