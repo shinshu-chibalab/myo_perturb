@@ -24,9 +24,9 @@ class _IndividualLike:
 
 
 class COMO_CMA_ES(OptimizerBase):
-    def __init__(self, model, muscles, controller, evaluator, sim_steps, model_name):
+    def __init__(self, model_path, muscles, controller, evaluator, sim_steps, model_name):
         self.model_path = model_path
-        self.model, self.data = myo_sim.load_model(model)
+        self.model = MjModel.from_xml_path(model_path)
 
         self.muscles = muscles
         self.actuator_ids = [self.model.actuator(m).id for m in muscles]
@@ -135,13 +135,13 @@ class COMO_CMA_ES(OptimizerBase):
 
             x_starts.append(x.tolist())
 
-        sigma_starts = [1.0] * n_kernels
+        sigma_starts = [sigma0] * n_kernels
 
         cma_opts = {
             "bounds": [bounds_lower, bounds_upper],
             "popsize": kernel_popsize,
             "verb_disp": 0,
-            "CMA_stds": (bounds_upper - bounds_lower) * sigma0,
+            "CMA_stds": (bounds_upper - bounds_lower),
             "maxiter": maxiter,
             "tolfun": 1e-30,
             "tolx": 1e-30,
@@ -169,7 +169,7 @@ class COMO_CMA_ES(OptimizerBase):
                 self.model_path,
                 self.muscles,
                 self.sim_steps,
-                self.model.qpos0,
+                self.model.qpos0.copy(),
                 self.com_init_height,
                 symmetry,
             ),

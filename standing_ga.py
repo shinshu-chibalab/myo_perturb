@@ -4,17 +4,18 @@ from render.render import render_video
 from controller.Standing_Controller import standing_controller
 from evaluator.f1EnergyAndCom_evaluator import standing_evaluator
 from x0_myolegs26 import *
+from x0_myolegs32 import *
 
 if __name__ == "__main__":
 
-    model_path = "myo_sim\models\leg\myolegs26.xml"
-    model_name = "myolegs26_standing_v1(ga)"
-    muscles = myolegs26_v0
+    model_path = "myo_sim\models\leg\myolegs32.xml"
+    model_name = "myolegs32_standing_v1(ga)"
+    muscles = myolegs32_v0
 
-    sim_steps = 1000
+    sim_steps = 2500
     popsize = 4480
     maxiter = 300
-    delay_time = 0.20
+    delay_time = 0.00
     noise_std = 0.00
     n_jobs = 56
     symmetry = True

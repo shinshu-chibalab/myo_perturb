@@ -3,11 +3,20 @@ from mujoco import MjModel, MjData, mj_step, mj_forward
 import numpy as np
 from utils.param_utils import expand_params
 from utils.metabolism import Wang2012
-from utils.muscle_data_myolegs26 import get_parameter_array
 
 _WORKER = {}
 
 def _init_worker(model_path, muscles, sim_steps, model_key_qpos, com_init_height, symmetry):
+
+    if "myolegs26" in model_path:
+        from utils.muscle_data_myolegs26 import get_parameter_array
+    elif "myolegs32" in model_path:
+        from utils.muscle_data_myolegs32 import get_parameter_array
+    else:
+        raise ValueError(
+            f"Unsupported model_path: {model_path}. "
+            "Expected model_path containing 'gait10dof18musc' or 'gait2354' or 'gait20dof24musc."
+        )
 
     model = MjModel.from_xml_path(model_path)
     data = MjData(model)
@@ -80,7 +89,7 @@ def run_simulation_worker(x, controller, evaluator, delay_time=0.0, noise_std=0.
         velocity_buffer = np.zeros((buffer_size, n_muscles))
         force_buffer = np.zeros((buffer_size, n_muscles))
 
-        com_log = np.zeros((sim_steps-300, 3))
+        com_log = np.zeros((sim_steps, 3))
 
         total_Edot = 0
         fall_cost = 0.0
@@ -135,10 +144,9 @@ def run_simulation_worker(x, controller, evaluator, delay_time=0.0, noise_std=0.
 
             mj_step(model, data)
 
-            com = data.subtree_com[0]
+            com = data.subtree_com[1]
 
-            if step >= 300:
-                com_log[step - 300] = com
+            com_log[step] = com
 
             # --- 転倒判定 ---
             if float(com[2]) < 0.90 * com_init_height and fallen == False:

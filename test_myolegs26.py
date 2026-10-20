@@ -5,7 +5,7 @@ from mujoco import MjModel, MjData, mj_step
 import imageio.v2 as imageio
 import os
 
-model = MjModel.from_xml_path(r"C:\Users\chiba_lab\myo_sim\myo_sim\models\leg\myolegs26.xml")
+model = MjModel.from_xml_path("myo_sim/models/leg/myolegs32.xml")
 data = MjData(model)
 mujoco.mj_forward(model, data)
 print("dt =", model.opt.timestep)
@@ -196,13 +196,15 @@ for i in range(model.ncam):
 for step in range(2500):
 
     data.ctrl[:] = u
+    if step % 100 == 0:
+        print(data.subtree_com[1])
 
     mujoco.mj_step(
         model,
         data
     )
 
-    renderer.update_scene(data, camera="side_view")
+    renderer.update_scene(data, camera="front_view")
     frames.append(renderer.render())
 
 os.makedirs("videos", exist_ok=True)

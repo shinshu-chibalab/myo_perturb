@@ -4,21 +4,22 @@ from render.render import render_video
 from controller.Standing_Controller import standing_controller
 from evaluator.f1Energy_f2Com_evaluator import standing_evaluator
 from x0_myolegs26 import *
+from x0_myolegs32 import *
 
 from cos_sim import analyze_vectors
 
 
 if __name__ == "__main__":
 
-    model_path = "myo_sim\models\leg\myolegs26.xml"
-    model_name = "myolegs26_standing_v1(como_cma_es)"
-    muscles = myolegs26_v0
+    model_path = "myo_sim\models\leg\myolegs32.xml"
+    model_name = "myolegs32_standing_v1(como_cma_es)"
+    muscles = myolegs32_v2
 
-    sim_steps = 1000
+    sim_steps = 2500
     sigma0 = 0.01
     popsize = 896
     maxiter = 3000
-    delay_time = 0.0
+    delay_time = 0.2
     noise_std = 0.0
     n_jobs = 56
     symmetry = True

@@ -89,7 +89,7 @@ def render_video(model_path, x, muscles, controller, sim_steps, model_name, dela
         data.ctrl[actuator_ids] = u
 
         # COM 計算
-        com = data.subtree_com[0].copy()
+        com = data.subtree_com[1]
 
         # geom の位置を更新
         model.geom_pos[com_geom_id] = com
@@ -132,13 +132,29 @@ def render_video(model_path, x, muscles, controller, sim_steps, model_name, dela
             cop = np.array([np.nan, np.nan, np.nan])
             model.geom_rgba[cop_geom_id] = np.array([1, 0, 0, 1])
 
-
         # 1 step
         mj_step(model, data)
 
         # 色付け
-        for idx, ui in zip(actuator_ids, u):
-            model.tendon_rgba[idx] = np.array([float(ui), 0.0, float(1.0-ui), 1.0])
+        # for idx, ui in zip(actuator_ids, u):
+        #     model.tendon_rgba[idx] = np.array([float(ui), 0.0, float(1.0-ui), 1.0])
+
+        tendon_ids = np.empty(len(actuator_ids), dtype=int)
+
+        for i, aid in enumerate(actuator_ids):
+
+            # tendonを介したactuatorか確認
+            if model.actuator_trntype[aid] != mujoco.mjtTrn.mjTRN_TENDON:
+                raise ValueError(
+                    f"Actuator '{model.actuator(aid).name}' "
+                    f"is not a tendon-transmission actuator."
+                )
+
+            # actuatorが接続されているtendon ID
+            tendon_ids[i] = model.actuator_trnid[aid, 0]
+
+        for tid, ui in zip(tendon_ids, u):
+            model.tendon_rgba[tid] = np.array([float(ui), 0.0, float(1.0 - ui), 1.0])
 
         a = data.act[actuator_ids]
 

@@ -63,7 +63,7 @@ class CMA_ES(OptimizerBase):
                 self.model_path,
                 self.muscles,
                 self.sim_steps,
-                self.model.qpos0,
+                self.model.qpos0.copy(),
                 self.com_init_height,
                 symmetry,
             )

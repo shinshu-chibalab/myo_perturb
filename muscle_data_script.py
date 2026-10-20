@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import mujoco
 import myo_sim
 import numpy as np
+from mujoco import MjModel, MjData, mj_step
 
 
 # ==========================================================
@@ -77,6 +78,10 @@ SLOW_TWITCH_RATIO = {
     "gastroc": 0.546,
     "soleus": 0.759,
     "tibant": 0.721,
+
+    "ercspn": 0.600,
+    "intobl": 0.560,
+    "extobl": 0.580,
 }
 
 
@@ -349,9 +354,8 @@ def get_left_muscles(muscle_data):
 
 if __name__ == "__main__":
 
-    model, data = myo_sim.load(
-        "myolegs26"
-    )
+    model = MjModel.from_xml_path("myo_sim/models/leg/myolegs32.xml")
+    data = MjData(model)
 
     muscle_data = create_muscle_data(
         model
