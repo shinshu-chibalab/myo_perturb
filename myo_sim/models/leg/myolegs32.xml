@@ -1,5 +1,6 @@
 <mujoco model="myotorso_abdomen_attach">
   <compiler angle="radian" meshdir=".." texturedir=".." />
+  <option timestep="0.005"/>
   <statistic extent="5" center="0 -1 1" />
   <visual>
     <global elevation="-15" />

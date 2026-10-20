@@ -1,3 +1,4 @@
+import signal
 import numpy as np
 from cma import CMAEvolutionStrategy
 from functools import partial
@@ -10,6 +11,10 @@ from utils.param_utils import create_x0_bounds, expand_params
 from optim.base import OptimizerBase
 from simulation.worker import run_simulation_worker, _init_worker
 from render.plot_cost import plot_cost_history
+
+def _init_worker_safe(*args):
+    signal.signal(signal.SIGINT, signal.SIG_IGN)  # Ignore SIGINT in worker processes
+    _init_worker(*args)  # Call the original initializer
 
 class CMA_ES(OptimizerBase):
     def __init__(self, model_path, muscles, controller, evaluator, sim_steps, model_name):
@@ -56,19 +61,6 @@ class CMA_ES(OptimizerBase):
 
         print(f"Using {n_jobs} parallel workers")
 
-        pool = Pool(
-            processes=n_jobs,
-            initializer=_init_worker,
-            initargs=(
-                self.model_path,
-                self.muscles,
-                self.sim_steps,
-                self.model.qpos0.copy(),
-                self.com_init_height,
-                symmetry,
-            )
-        )
-
         worker = partial(
             run_simulation_worker, 
             controller=self.controller, 
@@ -77,12 +69,49 @@ class CMA_ES(OptimizerBase):
             noise_std=noise_std
         )
 
+        best_x = None
+        best_fitness = None
+        best_cost = np.inf
+
+        pool = None
+        interrupt = False
+
         try:
+            pool = Pool(
+                processes=n_jobs,
+                initializer=_init_worker_safe,
+                initargs=(
+                    self.model_path,
+                    self.muscles,
+                    self.sim_steps,
+                    self.model.qpos0.copy(),
+                    self.com_init_height,
+                    symmetry,
+                )
+            )
+
             while not es.stop():
                 solutions = es.ask()
                 
                 eval_results = pool.map(worker, solutions, chunksize=4)
                 costs = [float(res[0]) for res in eval_results]
+
+                best_idx = int(np.argmin(costs))
+                generation_best_cost = costs[best_idx]
+
+                if generation_best_cost < best_cost:
+
+                    best_cost = generation_best_cost
+
+                    best_x = np.asarray(
+                        solutions[best_idx],
+                        dtype=float,
+                    ).copy()
+
+                    best_fitness = tuple(
+                        eval_results[best_idx]
+                    )
+
 
                 es.tell(solutions, costs)
                 es.disp()
@@ -90,12 +119,30 @@ class CMA_ES(OptimizerBase):
                 self.cost_history_min.append(float(np.min(costs)))
                 self.cost_history_mean.append(float(np.mean(costs)))
 
-            best_x = es.result.xbest
-            best_fitness = pool.map(worker, [best_x], chunksize=1)[0]
+            # best_x = es.result.xbest
+            # best_fitness = pool.map(worker, [best_x], chunksize=1)[0]
+
+        except KeyboardInterrupt:
+            interrupt = True
+            print("\n[INFO] Optimization interrupted by user.", flush=True)
 
         finally:
-            pool.close()
-            pool.join()
+            if pool is not None:
+                if interrupt:
+                    pool.terminate()
+                else:
+                    pool.close()
+                
+                pool.join()
+
+            print("[INFO] Worker processes terminated.", flush=True)
+
+        if best_x is None:
+            print("[WARNING] No completed generations. " "No results to save.", flush=True)
+            return {
+                "params": [],
+                "fitness": [],
+            }
         
         plot_cost_history(self.model_name, self.cost_history_mean, "mean")
         plot_cost_history(self.model_name, self.cost_history_min, "min")

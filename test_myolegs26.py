@@ -193,11 +193,11 @@ for i in range(model.ncam):
 # ==========================================
 
 
-for step in range(2500):
+for step in range(1000):
 
     data.ctrl[:] = u
-    if step % 100 == 0:
-        print(data.subtree_com[1])
+    # if step % 100 == 0:
+    #     print(data.subtree_com[1])
 
     mujoco.mj_step(
         model,
@@ -209,6 +209,6 @@ for step in range(2500):
 
 os.makedirs("videos", exist_ok=True)
 
-with imageio.get_writer("videos/myolegs26_simulation.mp4", fps=500, codec="libx264", pixelformat="yuv420p") as writer:
+with imageio.get_writer("videos/myolegs32_simulation.mp4", fps=200, codec="libx264", pixelformat="yuv420p") as writer:
     for frame in frames:
         writer.append_data(frame)

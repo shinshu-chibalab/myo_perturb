@@ -175,7 +175,7 @@ def render_video(model_path, x, muscles, controller, sim_steps, model_name, dela
     os.makedirs(video_dir, exist_ok=True)
     video_path = os.path.join(video_dir, f"{model_name}_{opt_name}_{camera}.mp4")
 
-    with imageio.get_writer(video_path, fps=500, codec="libx264", pixelformat="yuv420p") as writer:
+    with imageio.get_writer(video_path, fps=200, codec="libx264", pixelformat="yuv420p") as writer:
         for frame in frames:
             writer.append_data(frame)
 

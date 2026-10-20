@@ -9,15 +9,15 @@ from x0_myolegs32 import *
 if __name__ == "__main__":
 
     model_path = "myo_sim\models\leg\myolegs32.xml"
-    model_name = "myolegs32_standing_v4(cma-es)"
+    model_name = "myolegs32_standing_v2(cma-es)"
     muscles = myolegs32_v2
 
-    sim_steps = 2500
-    sigma0 = 0.01
+    sim_steps = 1000
+    sigma0 = 0.03
     popsize = 112
-    maxiter = 3000
-    delay_time = 0.00
-    noise_std = 0.01
+    maxiter = 1000
+    delay_time = 0.20
+    noise_std = 0.00
     n_jobs = 56
     symmetry = True
 
